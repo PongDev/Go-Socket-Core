@@ -9,7 +9,7 @@ import (
 func SetupRouter(r *gin.Engine) {
 	hub := utils.NewHub()
 
-	channelService := services.NewChannelService(&hub)
+	channelService := services.NewChannelService(hub)
 
 	r.POST("/channel", channelService.CreateChannel)
 	r.POST("/channel/:channelId", channelService.HandleMessage)

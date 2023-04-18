@@ -1,16 +1,19 @@
 package utils
 
 import (
+	"fmt"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
 type HubInterface interface {
+	CheckExistChannel(string) bool
 	JoinChannel(string, *websocket.Conn)
 	LeaveChannel(string, *websocket.Conn)
 	UnregisterClient(*websocket.Conn)
-	RegisterNewChannel(string)
+	RegisterNewChannel() string
 	UnregisterChannel(string)
 	SendMessageToChannel(string, []byte)
 	BroadcastMessage([]byte)
@@ -34,11 +37,23 @@ func NewHub() HubInterface {
 	}
 }
 
+func (h *Hub) CheckExistChannel(channelId string) bool {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
+	_, ok := h.channels[channelId]
+	return ok
+}
+
 func (h *Hub) JoinChannel(channelId string, conn *websocket.Conn) {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
 	h.channels[channelId][conn] = true
+
+	if h.clients[conn] == nil {
+		h.clients[conn] = make(map[string]bool)
+	}
 	h.clients[conn][channelId] = true
 }
 
@@ -50,11 +65,16 @@ func (h *Hub) LeaveChannel(channelId string, conn *websocket.Conn) {
 	delete(h.clients[conn], channelId)
 }
 
-func (h *Hub) RegisterNewChannel(channelId string) {
+func (h *Hub) RegisterNewChannel() string {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
+	uuid := uuid.New()
+	channelId := uuid.String()
+
 	h.channels[channelId] = make(map[*websocket.Conn]bool)
+
+	return channelId
 }
 
 func (h *Hub) SendMessageToChannel(channelId string, message []byte) {
@@ -74,6 +94,7 @@ func (h *Hub) UnregisterChannel(channelId string) {
 	defer h.lock.Unlock()
 
 	for conn := range h.channels[channelId] {
+		conn.WriteMessage(websocket.CloseMessage, []byte(fmt.Sprintf("Unregister channel: %s", channelId)))
 		delete(h.clients, conn)
 	}
 
