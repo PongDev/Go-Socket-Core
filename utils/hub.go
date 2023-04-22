@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/google/uuid"
@@ -94,7 +93,10 @@ func (h *Hub) UnregisterChannel(channelId string) {
 	defer h.lock.Unlock()
 
 	for conn := range h.channels[channelId] {
-		conn.WriteMessage(websocket.CloseMessage, []byte(fmt.Sprintf("Unregister channel: %s", channelId)))
+		conn.WriteJSON(map[string]string{
+			"type":      "CLOSE_CHANNEL",
+			"channelId": channelId,
+		})
 		delete(h.clients, conn)
 	}
 

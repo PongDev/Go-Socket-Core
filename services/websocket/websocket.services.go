@@ -17,11 +17,15 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+type WebsocketServiceInterface interface {
+	HandleConnection(ctx *gin.Context)
+}
+
 type WebsocketService struct {
 	channelService services.ChannelServiceInterface
 }
 
-func NewWebsocketService(channelService services.ChannelServiceInterface) *WebsocketService {
+func NewWebsocketService(channelService services.ChannelServiceInterface) WebsocketServiceInterface {
 	return &WebsocketService{
 		channelService: channelService,
 	}
@@ -56,6 +60,9 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 			})
 		case "leave":
 			s.channelService.LeaveChannel(conn, channelId)
+			conn.WriteJSON(map[string]interface{}{
+				"type": "ACK",
+			})
 		default:
 			conn.WriteJSON(map[string]interface{}{
 				"type":    "ERROR",
