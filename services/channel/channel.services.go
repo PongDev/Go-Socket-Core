@@ -10,19 +10,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
 type ChannelServiceInterface interface {
 	CreateChannel(ctx *gin.Context)
-	ConnectChannel(ctx *gin.Context)
 	DeleteChannel(ctx *gin.Context)
 	HandleMessage(ctx *gin.Context)
+	UnregisterClient(conn *websocket.Conn)
+	JoinChannel(conn *websocket.Conn, channelId string)
+	LeaveChannel(conn *websocket.Conn, channelId string)
 }
 
 type ChannelService struct {
@@ -43,33 +37,12 @@ func (s *ChannelService) CreateChannel(ctx *gin.Context) {
 	})
 }
 
-func (s *ChannelService) ConnectChannel(ctx *gin.Context) {
-	channelId := ctx.Param("channelId")
-
-	if !s.hub.CheckExistChannel(channelId) {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "Channel not found",
-		})
-		return
-	}
-
-	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
+func (s *ChannelService) JoinChannel(conn *websocket.Conn, channelId string) {
 	s.hub.JoinChannel(channelId, conn)
+}
 
-	for {
-		_, _, err := conn.ReadMessage()
-
-		if err != nil {
-			s.hub.UnregisterClient(conn)
-			break
-		}
-	}
+func (s *ChannelService) LeaveChannel(conn *websocket.Conn, channelId string) {
+	s.hub.LeaveChannel(channelId, conn)
 }
 
 func (s *ChannelService) DeleteChannel(ctx *gin.Context) {
@@ -102,4 +75,8 @@ func (s *ChannelService) HandleMessage(ctx *gin.Context) {
 	}
 
 	s.hub.SendMessageToChannel(channelId, []byte(msg.Content))
+}
+
+func (s *ChannelService) UnregisterClient(conn *websocket.Conn) {
+	s.hub.UnregisterClient(conn)
 }

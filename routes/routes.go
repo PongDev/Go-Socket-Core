@@ -1,7 +1,9 @@
 package routes
 
 import (
-	"github.com/PongDev/Go-Socket-Core/services"
+	channelServices "github.com/PongDev/Go-Socket-Core/services/channel"
+	websocketServices "github.com/PongDev/Go-Socket-Core/services/websocket"
+
 	"github.com/PongDev/Go-Socket-Core/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -9,10 +11,11 @@ import (
 func SetupRouter(r *gin.Engine) {
 	hub := utils.NewHub()
 
-	channelService := services.NewChannelService(hub)
+	channelService := channelServices.NewChannelService(hub)
+	websocketService := websocketServices.NewWebsocketService(channelService)
 
+	r.GET("/", websocketService.HandleConnection)
 	r.POST("/channel", channelService.CreateChannel)
 	r.POST("/channel/:channelId", channelService.HandleMessage)
-	r.GET("/channel/:channelId", channelService.ConnectChannel)
 	r.DELETE("/channel/:channelId", channelService.DeleteChannel)
 }
