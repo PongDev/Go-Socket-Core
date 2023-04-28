@@ -13,3 +13,12 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - "./postgres:/var/lib/postgresql/data"
+
+  app:
+    image: cosmtrek/air
+    container_name: app
+    working_dir: /app
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/app
