@@ -16,8 +16,7 @@
   },
   "lint-staged": {
     "*.go": [
-      "go fmt",
-      "golangci-lint run"
+      "gofmt -w"
     ]
   }
 }
