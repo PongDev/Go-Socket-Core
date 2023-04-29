@@ -4,6 +4,8 @@ const (
 	MessageUnexpectedError    string = "Unexpected error"
 	MessageSent               string = "Message sent"
 	MessageInvalidRequest     string = "Invalid request"
+	MessageChannelExists      string = "Channel Exists"
+	MessageChannelCreated     string = "Channel Created"
 	MessageInvalidMessageType string = "Invalid message type"
 	MessageChannelIDRequired  string = "Channel id is required"
 	MessageChannelDeleted     string = "Channel deleted"
