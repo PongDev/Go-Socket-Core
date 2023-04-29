@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -11,6 +12,11 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() {
+	if _, ok := os.LookupEnv("DB_HOST"); !ok {
+		log.Println("DB_HOST is not set, ignore database connection")
+		return
+	}
+
 	database, err := gorm.Open(postgres.New(postgres.Config{
 		DSN: fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s",
 			os.Getenv("DB_HOST"),

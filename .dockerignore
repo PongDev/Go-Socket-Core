@@ -1,0 +1,4 @@
+.env
+postgres
+tmp
+node_modules

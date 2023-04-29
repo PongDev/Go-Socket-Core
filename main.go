@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/PongDev/Go-Socket-Core/app"
 	"github.com/joho/godotenv"
 )
@@ -8,7 +10,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		panic("Failed to load .env file")
+		log.Println("Failed to load .env file, Use from environment variables")
 	}
 
 	app := app.NewApp()
