@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/PongDev/Go-Socket-Core/types"
@@ -73,10 +74,13 @@ func (h *Hub) CloseChannel(channelId string) error {
 		return types.ChannelNotFoundError(channelId)
 	}
 	for conn := range h.channels[channelId] {
-		conn.WriteJSON(dtos.SocketMessageDTO{
+		err := conn.WriteJSON(dtos.SocketMessageDTO{
 			Type:      dtos.SocketMessageTypeCloseChannel,
 			ChannelID: channelId,
 		})
+		if err != nil {
+			log.Println(err)
+		}
 		delete(h.clients, conn)
 	}
 
@@ -137,7 +141,10 @@ func (h *Hub) SendMessageToChannel(channelId string, message []byte) error {
 		return types.ChannelNotFoundError(channelId)
 	}
 	for conn := range h.channels[channelId] {
-		conn.WriteMessage(websocket.TextMessage, message)
+		err := conn.WriteMessage(websocket.TextMessage, message)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 	return nil
 }
@@ -147,6 +154,9 @@ func (h *Hub) BroadcastMessage(message []byte) {
 	defer h.lock.Unlock()
 
 	for conn := range h.clients {
-		conn.WriteMessage(websocket.TextMessage, message)
+		err := conn.WriteMessage(websocket.TextMessage, message)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
