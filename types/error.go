@@ -14,6 +14,12 @@ func (e ChannelNotFoundError) Error() string {
 	return fmt.Sprintf("Channel ID: %s Not Found", string(e))
 }
 
+type ChannelExistsError string
+
+func (e ChannelExistsError) Error() string {
+	return fmt.Sprintf("Channel ID: %s Exists", string(e))
+}
+
 type ClientNotFoundError string
 
 func (e ClientNotFoundError) Error() string {

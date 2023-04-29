@@ -16,6 +16,7 @@ func SetupRouter(r *gin.Engine) {
 
 	r.GET("/", websocketService.HandleConnection)
 	r.POST("/channel", channelService.CreateChannel)
-	r.POST("/channel/:channelId", channelService.HandleMessage)
+	r.POST("/channel/:channelId", channelService.CreateChannelWithId)
+	r.POST("/channel/message/:channelId", channelService.HandleMessage)
 	r.DELETE("/channel/:channelId", channelService.CloseChannel)
 }

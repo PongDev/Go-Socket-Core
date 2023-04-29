@@ -14,6 +14,7 @@ import (
 type HubInterface interface {
 	CheckExistChannel(string) bool
 	CreateChannel() string
+	CreateChannelWithId(string) error
 	CloseChannel(string) error
 	JoinChannel(string, *websocket.Conn) error
 	LeaveChannel(string, *websocket.Conn) error
@@ -64,6 +65,19 @@ func (h *Hub) CreateChannel() string {
 	h.channels[channelId] = make(map[*websocket.Conn]bool)
 
 	return channelId
+}
+
+func (h *Hub) CreateChannelWithId(channelId string) error {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
+	if _, ok := h.channels[channelId]; ok {
+		return types.ChannelExistsError(channelId)
+	}
+
+	h.channels[channelId] = make(map[*websocket.Conn]bool)
+
+	return nil
 }
 
 func (h *Hub) CloseChannel(channelId string) error {

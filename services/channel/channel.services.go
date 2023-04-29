@@ -14,6 +14,7 @@ import (
 
 type ChannelServiceInterface interface {
 	CreateChannel(ctx *gin.Context)
+	CreateChannelWithId(ctx *gin.Context)
 	CloseChannel(ctx *gin.Context)
 	HandleMessage(ctx *gin.Context)
 	JoinChannel(conn *websocket.Conn, channelId string) error
@@ -36,6 +37,25 @@ func (s *ChannelService) CreateChannel(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, types.CreateChannelResponse{
 		ChannelId: channelId,
+	})
+}
+
+func (s *ChannelService) CreateChannelWithId(ctx *gin.Context) {
+	channelId, ok := ctx.Params.Get("channelId")
+
+	if !ok {
+		ctx.JSON(http.StatusBadRequest, types.CreateChannelWithIdResponse{
+			Message: dtos.MessageChannelIDRequired,
+		})
+		return
+	}
+	if err := s.hub.CreateChannelWithId(channelId); err != nil {
+		ctx.JSON(http.StatusConflict, types.CreateChannelWithIdResponse{
+			Message: dtos.MessageChannelExists,
+		})
+	}
+	ctx.JSON(http.StatusOK, types.CreateChannelWithIdResponse{
+		Message: dtos.MessageChannelCreated,
 	})
 }
 
