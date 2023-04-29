@@ -19,8 +19,8 @@ type HubInterface interface {
 	JoinChannel(string, *websocket.Conn) error
 	LeaveChannel(string, *websocket.Conn) error
 	DisconnectClient(*websocket.Conn) error
-	SendMessageToChannel(string, []byte) error
-	BroadcastMessage([]byte)
+	SendMessageToChannel(string, string) error
+	BroadcastMessage(string)
 }
 
 type Hub struct {
@@ -147,7 +147,7 @@ func (h *Hub) DisconnectClient(conn *websocket.Conn) error {
 	return nil
 }
 
-func (h *Hub) SendMessageToChannel(channelId string, message []byte) error {
+func (h *Hub) SendMessageToChannel(channelId string, message string) error {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
@@ -155,7 +155,11 @@ func (h *Hub) SendMessageToChannel(channelId string, message []byte) error {
 		return types.ChannelNotFoundError(channelId)
 	}
 	for conn := range h.channels[channelId] {
-		err := conn.WriteMessage(websocket.TextMessage, message)
+		err := conn.WriteJSON(dtos.SocketMessageDTO{
+			Type:      dtos.SocketMessageTypeMessage,
+			ChannelID: channelId,
+			Message:   message,
+		})
 		if err != nil {
 			log.Println(err)
 		}
@@ -163,12 +167,15 @@ func (h *Hub) SendMessageToChannel(channelId string, message []byte) error {
 	return nil
 }
 
-func (h *Hub) BroadcastMessage(message []byte) {
+func (h *Hub) BroadcastMessage(message string) {
 	h.lock.Lock()
 	defer h.lock.Unlock()
 
 	for conn := range h.clients {
-		err := conn.WriteMessage(websocket.TextMessage, message)
+		err := conn.WriteJSON(dtos.SocketMessageDTO{
+			Type:    dtos.SocketMessageTypeBroadcast,
+			Message: message,
+		})
 		if err != nil {
 			log.Println(err)
 		}

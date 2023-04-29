@@ -20,6 +20,8 @@ const (
 	SocketMessageTypeJoin         SocketMessageType = "JOIN"
 	SocketMessageTypeLeave        SocketMessageType = "LEAVE"
 	SocketMessageTypeUnauthorized SocketMessageType = "UNAUTHORIZED"
+	SocketMessageTypeMessage      SocketMessageType = "MESSAGE"
+	SocketMessageTypeBroadcast    SocketMessageType = "BROADCAST"
 )
 
 type MessageDTO struct {

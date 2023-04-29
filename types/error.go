@@ -25,3 +25,9 @@ type ClientNotFoundError string
 func (e ClientNotFoundError) Error() string {
 	return fmt.Sprintf("Client ID: %s Not Found", string(e))
 }
+
+type SendMessageError string
+
+func (e SendMessageError) Error() string {
+	return fmt.Sprintf("Send Message Error: %s", string(e))
+}

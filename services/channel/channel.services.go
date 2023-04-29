@@ -105,7 +105,7 @@ func (s *ChannelService) HandleMessage(ctx *gin.Context) {
 		})
 		return
 	}
-	if err := s.hub.SendMessageToChannel(channelId, []byte(msg.Content)); err != nil {
+	if err := s.hub.SendMessageToChannel(channelId, msg.Content); err != nil {
 		var ChannelNotFoundError *types.ChannelNotFoundError
 		if errors.As(err, &ChannelNotFoundError) {
 			ctx.JSON(http.StatusNotFound, types.HandleMessageResponse{
