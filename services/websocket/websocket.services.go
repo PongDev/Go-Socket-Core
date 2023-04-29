@@ -45,7 +45,10 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 		err := conn.ReadJSON(&message)
 
 		if err != nil {
-			s.channelService.DisconnectClient(conn)
+			err := s.channelService.DisconnectClient(conn)
+			if err != nil {
+				log.Println(err)
+			}
 			conn.Close()
 			break
 		}
@@ -55,20 +58,35 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 
 		switch t {
 		case dtos.SocketMessageTypeJoin:
-			s.channelService.JoinChannel(conn, channelId)
-			conn.WriteJSON(dtos.SocketMessageDTO{
+			err := s.channelService.JoinChannel(conn, channelId)
+			if err != nil {
+				log.Println(err)
+			}
+			err = conn.WriteJSON(dtos.SocketMessageDTO{
 				Type: dtos.SocketMessageTypeACK,
 			})
+			if err != nil {
+				log.Println(err)
+			}
 		case dtos.SocketMessageTypeLeave:
-			s.channelService.LeaveChannel(conn, channelId)
-			conn.WriteJSON(dtos.SocketMessageDTO{
+			err := s.channelService.LeaveChannel(conn, channelId)
+			if err != nil {
+				log.Println(err)
+			}
+			err = conn.WriteJSON(dtos.SocketMessageDTO{
 				Type: dtos.SocketMessageTypeACK,
 			})
+			if err != nil {
+				log.Println(err)
+			}
 		default:
-			conn.WriteJSON(dtos.SocketMessageDTO{
+			err := conn.WriteJSON(dtos.SocketMessageDTO{
 				Type:    dtos.SocketMessageTypeError,
 				Message: dtos.MessageInvalidMessageType,
 			})
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}
 }

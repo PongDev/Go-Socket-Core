@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log"
 	"os"
 
 	"github.com/PongDev/Go-Socket-Core/models"
@@ -20,7 +21,10 @@ func NewApp() *App {
 	app := &App{
 		engine: gin.Default(),
 	}
-	app.engine.SetTrustedProxies([]string{trustProyy})
+	err := app.engine.SetTrustedProxies([]string{trustProyy})
+	if err != nil {
+		log.Println(err)
+	}
 	return app
 }
 
@@ -33,5 +37,8 @@ func (app *App) SetupDatabase() {
 }
 
 func (app *App) Run() {
-	app.engine.Run()
+	err := app.engine.Run()
+	if err != nil {
+		log.Println(err)
+	}
 }
