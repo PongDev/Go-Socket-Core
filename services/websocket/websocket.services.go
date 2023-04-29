@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	services "github.com/PongDev/Go-Socket-Core/services/channel"
+	verifier "github.com/PongDev/Go-Socket-Core/services/verifier"
 	"github.com/PongDev/Go-Socket-Core/types/dtos"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -58,15 +59,24 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 
 		switch t {
 		case dtos.SocketMessageTypeJoin:
-			err := s.channelService.JoinChannel(conn, channelId)
-			if err != nil {
-				log.Println(err)
-			}
-			err = conn.WriteJSON(dtos.SocketMessageDTO{
-				Type: dtos.SocketMessageTypeACK,
-			})
-			if err != nil {
-				log.Println(err)
+			if verifier.VerifyOperation(message.Token, channelId, dtos.SocketMessageTypeJoin) {
+				err := s.channelService.JoinChannel(conn, channelId)
+				if err != nil {
+					log.Println(err)
+				}
+				err = conn.WriteJSON(dtos.SocketMessageDTO{
+					Type: dtos.SocketMessageTypeACK,
+				})
+				if err != nil {
+					log.Println(err)
+				}
+			} else {
+				err := conn.WriteJSON(dtos.SocketMessageDTO{
+					Type: dtos.SocketMessageTypeUnauthorized,
+				})
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		case dtos.SocketMessageTypeLeave:
 			err := s.channelService.LeaveChannel(conn, channelId)
