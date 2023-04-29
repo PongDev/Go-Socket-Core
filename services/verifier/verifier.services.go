@@ -19,7 +19,7 @@ func VerifyOperation(token string, channelId string, types dtos.SocketMessageTyp
 	if err != nil {
 		return false
 	}
-	req, err := http.NewRequest("POST", os.Getenv("VERIFY_URL"), bytes.NewReader(reqBody))
+	req, err := http.NewRequest("POST", os.Getenv("VERIFIER_URL"), bytes.NewReader(reqBody))
 	if err != nil {
 		return false
 	}
