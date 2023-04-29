@@ -14,7 +14,6 @@ func VerifyOperation(token string, channelId string, types dtos.SocketMessageTyp
 	reqBody, err := json.Marshal(dtos.VerifierRequestDTO{
 		Type:      types,
 		ChannelID: channelId,
-		Token:     token,
 	})
 	if err != nil {
 		return false
