@@ -38,7 +38,6 @@ type SocketMessageDTO struct {
 type VerifierRequestDTO struct {
 	Type      SocketMessageType `json:"type"`
 	ChannelID string            `json:"channelId"`
-	Token     string            `json:"token"`
 }
 
 type VerifierResponseDTO struct {
