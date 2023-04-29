@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	services "github.com/PongDev/Go-Socket-Core/services/channel"
+	"github.com/PongDev/Go-Socket-Core/types/dtos"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -40,33 +41,33 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 	}
 
 	for {
-		var message map[string]interface{}
+		var message dtos.SocketMessageDTO
 		err := conn.ReadJSON(&message)
 
 		if err != nil {
-			s.channelService.UnregisterClient(conn)
+			s.channelService.DisconnectClient(conn)
 			conn.Close()
 			break
 		}
 
-		t := message["type"]
-		channelId := message["channelId"].(string)
+		t := message.Type
+		channelId := message.ChannelID
 
 		switch t {
-		case "join":
+		case dtos.SocketMessageTypeJoin:
 			s.channelService.JoinChannel(conn, channelId)
-			conn.WriteJSON(map[string]interface{}{
-				"type": "ACK",
+			conn.WriteJSON(dtos.SocketMessageDTO{
+				Type: dtos.SocketMessageTypeACK,
 			})
-		case "leave":
+		case dtos.SocketMessageTypeLeave:
 			s.channelService.LeaveChannel(conn, channelId)
-			conn.WriteJSON(map[string]interface{}{
-				"type": "ACK",
+			conn.WriteJSON(dtos.SocketMessageDTO{
+				Type: dtos.SocketMessageTypeACK,
 			})
 		default:
-			conn.WriteJSON(map[string]interface{}{
-				"type":    "ERROR",
-				"message": "Invalid message type",
+			conn.WriteJSON(dtos.SocketMessageDTO{
+				Type:    dtos.SocketMessageTypeError,
+				Message: dtos.MessageInvalidMessageType,
 			})
 		}
 	}
