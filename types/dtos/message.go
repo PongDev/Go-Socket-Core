@@ -17,6 +17,7 @@ const (
 	SocketMessageTypeError        SocketMessageType = "ERROR"
 	SocketMessageTypeJoin         SocketMessageType = "JOIN"
 	SocketMessageTypeLeave        SocketMessageType = "LEAVE"
+	SocketMessageTypeUnauthorized SocketMessageType = "UNAUTHORIZED"
 )
 
 type MessageDTO struct {
@@ -27,4 +28,15 @@ type SocketMessageDTO struct {
 	Type      SocketMessageType `json:"type"`
 	ChannelID string            `json:"channelId"`
 	Message   string            `json:"message"`
+	Token     string            `json:"token"`
+}
+
+type VerifierRequestDTO struct {
+	Type      SocketMessageType `json:"type"`
+	ChannelID string            `json:"channelId"`
+	Token     string            `json:"token"`
+}
+
+type VerifierResponseDTO struct {
+	Valid bool `json:"valid"`
 }
