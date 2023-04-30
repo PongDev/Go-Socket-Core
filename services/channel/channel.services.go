@@ -53,6 +53,7 @@ func (s *ChannelService) CreateChannelWithId(ctx *gin.Context) {
 		ctx.JSON(http.StatusConflict, types.CreateChannelWithIdResponse{
 			Message: dtos.MessageChannelExists,
 		})
+		return
 	}
 	ctx.JSON(http.StatusOK, types.CreateChannelWithIdResponse{
 		Message: dtos.MessageChannelCreated,
