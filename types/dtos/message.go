@@ -17,6 +17,7 @@ const (
 	SocketMessageTypeCloseChannel SocketMessageType = "CLOSE_CHANNEL"
 	SocketMessageTypeACK          SocketMessageType = "ACK"
 	SocketMessageTypeError        SocketMessageType = "ERROR"
+	SocketMessageTypeNotFound     SocketMessageType = "NOT_FOUND"
 	SocketMessageTypeJoin         SocketMessageType = "JOIN"
 	SocketMessageTypeLeave        SocketMessageType = "LEAVE"
 	SocketMessageTypeUnauthorized SocketMessageType = "UNAUTHORIZED"

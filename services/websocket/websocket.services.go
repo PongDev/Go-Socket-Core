@@ -1,11 +1,13 @@
 package services
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
 	services "github.com/PongDev/Go-Socket-Core/services/channel"
 	verifier "github.com/PongDev/Go-Socket-Core/services/verifier"
+	"github.com/PongDev/Go-Socket-Core/types"
 	"github.com/PongDev/Go-Socket-Core/types/dtos"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -60,31 +62,46 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 		switch t {
 		case dtos.SocketMessageTypeJoin:
 			if verifier.VerifyOperation(message.Token, channelId, dtos.SocketMessageTypeJoin) {
+				msgType := dtos.SocketMessageTypeACK
+
 				err := s.channelService.JoinChannel(conn, channelId)
 				if err != nil {
 					log.Println(err)
+					var ChannelNotFoundError *types.ChannelNotFoundError
+					if errors.As(err, &ChannelNotFoundError) {
+						msgType = dtos.SocketMessageTypeNotFound
+					}
 				}
 				err = conn.WriteJSON(dtos.SocketMessageDTO{
-					Type: dtos.SocketMessageTypeACK,
+					Type:      msgType,
+					ChannelID: channelId,
 				})
 				if err != nil {
 					log.Println(err)
 				}
 			} else {
 				err := conn.WriteJSON(dtos.SocketMessageDTO{
-					Type: dtos.SocketMessageTypeUnauthorized,
+					Type:      dtos.SocketMessageTypeUnauthorized,
+					ChannelID: channelId,
 				})
 				if err != nil {
 					log.Println(err)
 				}
 			}
 		case dtos.SocketMessageTypeLeave:
+			msgType := dtos.SocketMessageTypeACK
+
 			err := s.channelService.LeaveChannel(conn, channelId)
 			if err != nil {
 				log.Println(err)
+				var ChannelNotFoundError *types.ChannelNotFoundError
+				if errors.As(err, &ChannelNotFoundError) {
+					msgType = dtos.SocketMessageTypeNotFound
+				}
 			}
 			err = conn.WriteJSON(dtos.SocketMessageDTO{
-				Type: dtos.SocketMessageTypeACK,
+				Type:      msgType,
+				ChannelID: channelId,
 			})
 			if err != nil {
 				log.Println(err)
