@@ -48,6 +48,7 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 		err := conn.ReadJSON(&message)
 
 		if err != nil {
+			log.Println(err)
 			err := s.channelService.DisconnectClient(conn)
 			if err != nil {
 				log.Println(err)
