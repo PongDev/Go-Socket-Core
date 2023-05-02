@@ -107,6 +107,13 @@ func (s *WebsocketService) HandleConnection(ctx *gin.Context) {
 			if err != nil {
 				log.Println(err)
 			}
+		case dtos.SocketMessageTypePing:
+			err := conn.WriteJSON(dtos.SocketMessageDTO{
+				Type: dtos.SocketMessageTypePong,
+			})
+			if err != nil {
+				log.Println(err)
+			}
 		default:
 			err := conn.WriteJSON(dtos.SocketMessageDTO{
 				Type:    dtos.SocketMessageTypeError,

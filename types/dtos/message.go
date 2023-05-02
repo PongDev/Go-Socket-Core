@@ -23,6 +23,8 @@ const (
 	SocketMessageTypeUnauthorized SocketMessageType = "UNAUTHORIZED"
 	SocketMessageTypeMessage      SocketMessageType = "MESSAGE"
 	SocketMessageTypeBroadcast    SocketMessageType = "BROADCAST"
+	SocketMessageTypePing         SocketMessageType = "PING"
+	SocketMessageTypePong         SocketMessageType = "PONG"
 )
 
 type MessageDTO struct {
